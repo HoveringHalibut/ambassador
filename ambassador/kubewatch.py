@@ -338,9 +338,9 @@ def watch_loop(restarter):
                 w = watch.Watch()
 
                 if "AMBASSADOR_SINGLE_NAMESPACE" in os.environ:
-                    watched = w.stream(v1.list_namespaced_service, namespace=restarter.namespace)
+                    watched = w.stream(v1.list_namespaced_service, namespace=restarter.namespace, timeout_seconds=300)
                 else:
-                    watched = w.stream(v1.list_service_for_all_namespaces)
+                    watched = w.stream(v1.list_service_for_all_namespaces, timeout_seconds=300)
 
                 for evt in watched:
                     logger.debug("Event: %s %s/%s" % 
