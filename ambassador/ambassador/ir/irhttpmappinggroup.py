@@ -316,12 +316,20 @@ class IRHTTPMappingGroup (IRBaseMappingGroup):
 
             # OK, once that's done normalize all the weights.
             if unspecified_mappings:
-                for mapping in self.mappings:
+                for idx, mapping in enumerate(self.mappings, start=1):
                     if not mapping.get("weight", 0):
-                        mapping.weight = (100.0 - total_weight)/unspecified_mappings
+                        # Check for a remainder in remaining weight to avoid an integer value
+                        if((100.0 - total_weight)%unspecified_mappings > 0):
+                            if(idx == self.mappings.len):
+                                # The last mapping will get 1% more traffic, because it needs to go somewhere
+                                mapping.weight = floor((100.0 - total_weight)/unspecified_mappings)+1
+                            else:
+                                mapping.weight = floor((100.0 - total_weight)/unspecified_mappings)
+                        else:
+                            mapping.weight = (100.0 - total_weight)/unspecified_mappings
             elif total_weight != 100.0:
                 for mapping in self.mappings:
-                    mapping.weight *= 100.0/total_weight
+                    mapping.weight *= round(100.0/total_weight)
 
             return list([ mapping.cluster for mapping in self.mappings ])
         else:
